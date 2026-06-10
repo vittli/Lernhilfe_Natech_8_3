@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NaTech 8 – Kapitel 3: Funktionen des Körpers</title>
+<style>
+  :root {
+    --gruen: #3a7d44;
+    --gruen-hell: #d4edda;
+    --gruen-mittel: #6aad74;
+    --orange: #e07b39;
+    --orange-hell: #fdf0e8;
+    --blau: #2c6e9b;
+    --blau-hell: #ddeeff;
+    --lila: #6b4c9a;
+    --lila-hell: #efe8f8;
+    --rot: #c0392b;
+    --rot-hell: #fde8e6;
+    --hintergrund: #f5f7f2;
+    --karte: #ffffff;
+    --text: #1e2a1f;
+    --text-hell: #5a6b5c;
+    --border: #d0ddd0;
+    --schatten: rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--hintergrund);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--gruen);
+    color: white;
+    padding: 28px 24px 20px;
+    text-align: center;
+  }
+  header .kap-badge {
+    display: inline-block;
+    background: var(--gruen-mittel);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  header h1 {
+    font-size: clamp(20px, 5vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  header p {
+    font-size: 15px;
+    opacity: 0.85;
+  }
+
+  /* NAV */
+  nav {
+    background: white;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-hell);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  nav button.aktiv {
+    color: var(--gruen);
+    border-bottom-color: var(--gruen);
+  }
+  nav button:hover { color: var(--gruen); }
+
+  /* MAIN */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  .tab-inhalt { display: none; }
+  .tab-inhalt.aktiv { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--gruen);
+    margin-bottom: 6px;
+    margin-top: 32px;
+  }
+  .section-title:first-child { margin-top: 0; }
+  .section-sub {
+    font-size: 14px;
+    color: var(--text-hell);
+    margin-bottom: 20px;
+  }
+
+  /* KONZEPT-KARTEN */
+  .karten-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .konzept-karte {
+    background: var(--karte);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 2px 8px var(--schatten);
+  }
+  .konzept-karte .thema-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .konzept-karte h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .konzept-karte p {
+    font-size: 14px;
+    color: var(--text-hell);
+    line-height: 1.55;
+  }
+
+  .farbe-ernaehrung { background: #e8f5e9; color: #2e7d32; }
+  .farbe-verdauung  { background: #fff3e0; color: #e65100; }
+  .farbe-krankheit  { background: #e3f2fd; color: #1565c0; }
+  .farbe-immun      { background: #f3e5f5; color: #6a1b9a; }
+  .farbe-gesundheit { background: #fce4ec; color: #880e4f; }
+
+  /* LERNKÄRTCHEN */
+  .karteien-steuerung {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .karteien-steuerung select,
+  .karteien-steuerung button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .karteien-steuerung select {
+    background: white;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .karteien-steuerung .btn-primary {
+    background: var(--gruen);
+    color: white;
+    border-color: var(--gruen);
+    font-weight: 700;
+  }
+  .karteien-steuerung .btn-primary:hover { background: #2d6438; }
+
+  .karteien-fortschritt {
+    font-size: 13px;
+    color: var(--text-hell);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .karte-wrapper {
+    perspective: 1000px;
+    height: 240px;
+    max-width: 560px;
+    margin: 0 auto 20px;
+    cursor: pointer;
+  }
+  .karte-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .karte-wrapper.gedreht .karte-inner { transform: rotateY(180deg); }
+  .karte-vorderseite,
+  .karte-rueckseite {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  }
+  .karte-vorderseite {
+    background: linear-gradient(135deg, var(--gruen) 0%, #2d6438 100%);
+    color: white;
+  }
+  .karte-vorderseite .karte-hinweis {
+    font-size: 11px;
+    opacity: 0.7;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .karte-vorderseite .karte-frage {
+    font-size: clamp(17px, 3vw, 21px);
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .karte-rueckseite {
+    background: white;
+    border: 2px solid var(--gruen-hell);
+    transform: rotateY(180deg);
+  }
+  .karte-rueckseite .karte-antwort-label {
+    font-size: 11px;
+    color: var(--gruen);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .karte-rueckseite .karte-antwort {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .karte-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .karte-buttons button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-zurueck { background: white; color: var(--text); }
+  .btn-gewusst { background: var(--gruen-hell); color: var(--gruen); border-color: var(--gruen); }
+  .btn-nicht-gewusst { background: #fde8e6; color: var(--rot); border-color: var(--rot); }
+  .btn-naechste { background: var(--gruen); color: white; border-color: var(--gruen); }
+  .btn-zurueck:hover { background: #f0f0f0; }
+
+  .ergebnis-box {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px var(--schatten);
+    display: none;
+  }
+  .ergebnis-box.sichtbar { display: block; }
+  .ergebnis-box .ergebnis-emoji { font-size: 52px; margin-bottom: 14px; }
+  .ergebnis-box h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .ergebnis-box p { font-size: 15px; color: var(--text-hell); margin-bottom: 20px; }
+
+  /* QUIZ */
+  .quiz-steuerung {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .quiz-steuerung select,
+  .quiz-steuerung button {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .quiz-steuerung select { background: white; color: var(--text); }
+  .quiz-steuerung .btn-start {
+    background: var(--gruen);
+    color: white;
+    border-color: var(--gruen);
+  }
+
+  .quiz-fortschritt-bar {
+    background: var(--border);
+    border-radius: 10px;
+    height: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .quiz-fortschritt-fill {
+    background: var(--gruen);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.4s;
+  }
+
+  .quiz-frage-box {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: 0 2px 10px var(--schatten);
+    margin-bottom: 16px;
+  }
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    font-size: 13px;
+    color: var(--text-hell);
+  }
+  .quiz-schwierig-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .level-leicht { background: #d4edda; color: #2e7d32; }
+  .level-mittel { background: #fff3cd; color: #856404; }
+  .level-schwer { background: #f8d7da; color: #842029; }
+
+  .quiz-frage {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 22px;
+  }
+
+  .quiz-optionen {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .quiz-option {
+    background: #f8faf8;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .quiz-option:hover:not(:disabled) {
+    border-color: var(--gruen);
+    background: var(--gruen-hell);
+  }
+  .quiz-option.richtig {
+    background: #d4edda;
+    border-color: var(--gruen);
+    color: #155724;
+  }
+  .quiz-option.falsch {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  .quiz-option:disabled { cursor: default; }
+
+  .quiz-feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    display: none;
+  }
+  .quiz-feedback.richtig { background: #d4edda; color: #155724; display: block; }
+  .quiz-feedback.falsch { background: #f8d7da; color: #721c24; display: block; }
+
+  .quiz-weiter-btn {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 28px;
+    background: var(--gruen);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s;
+  }
+  .quiz-weiter-btn:hover { background: #2d6438; }
+  .quiz-weiter-btn.sichtbar { display: block; }
+
+  .quiz-ergebnis {
+    background: white;
+    border-radius: 18px;
+    padding: 40px 28px;
+    text-align: center;
+    box-shadow: 0 4px 20px var(--schatten);
+    display: none;
+  }
+  .quiz-ergebnis.sichtbar { display: block; }
+  .quiz-ergebnis .punkte-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--gruen) 0%, var(--border) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--gruen);
+  }
+  .quiz-ergebnis .punkte-ring::before {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    background: white;
+    border-radius: 50%;
+  }
+  .quiz-ergebnis .punkte-ring span { position: relative; z-index: 1; }
+  .quiz-ergebnis h3 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+  .quiz-ergebnis p { font-size: 15px; color: var(--text-hell); margin-bottom: 24px; }
+
+  .neu-starten-btn {
+    padding: 13px 32px;
+    background: var(--gruen);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 4px;
+  }
+  .neu-starten-btn:hover { background: #2d6438; }
+
+  /* ÜBERSICHT */
+  .uebersicht-karte {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px var(--schatten);
+    border-left: 4px solid;
+  }
+  .uebersicht-karte.uk-ernaehrung { border-left-color: var(--gruen); }
+  .uebersicht-karte.uk-verdauung  { border-left-color: var(--orange); }
+  .uebersicht-karte.uk-krankheit  { border-left-color: var(--blau); }
+  .uebersicht-karte.uk-immun      { border-left-color: var(--lila); }
+  .uebersicht-karte.uk-gesundheit { border-left-color: var(--rot); }
+
+  .uebersicht-karte .uk-nummer {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    opacity: 0.6;
+  }
+  .uebersicht-karte h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .uebersicht-karte ul {
+    padding-left: 0;
+    list-style: none;
+  }
+  .uebersicht-karte ul li {
+    font-size: 14px;
+    color: var(--text-hell);
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .uebersicht-karte ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--gruen);
+    font-size: 12px;
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: var(--orange-hell);
+    border: 1.5px solid #f4c08a;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #7a3d1a;
+  }
+  .info-box strong { color: var(--orange); }
+
+  /* FACHBEGRIFF LISTE */
+  .fachbegriff-item {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .fachbegriff-item .fb-term {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gruen);
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+  .fachbegriff-item .fb-erklaerung {
+    font-size: 14px;
+    color: var(--text-hell);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 500px) {
+    .fachbegriff-item { flex-direction: column; gap: 4px; }
+    .fachbegriff-item .fb-term { min-width: unset; }
+    .karten-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kap-badge">NaTech 8 · Kapitel 3</div>
+  <h1>Funktionen des Körpers analysieren</h1>
+  <p>Lernkärtchen · Konzepte · Quiz · Fachbegriffe</p>
+</header>
+
+<nav id="hauptnav">
+  <button class="aktiv" onclick="zeigeTab('uebersicht', this)">📋 Übersicht</button>
+  <button onclick="zeigeTab('konzepte', this)">💡 Konzepte</button>
+  <button onclick="zeigeTab('karteien', this)">🃏 Lernkärtchen</button>
+  <button onclick="zeigeTab('fachbegriffe', this)">📖 Fachbegriffe</button>
+  <button onclick="zeigeTab('quiz', this)">🎯 Quiz</button>
+</nav>
+
+<main>
+
+<!-- ========== ÜBERSICHT ========== -->
+<div id="tab-uebersicht" class="tab-inhalt aktiv">
+  <p class="section-title">Was lernst du in diesem Kapitel?</p>
+  <p class="section-sub">Kapitel 3 behandelt, wie dein Körper Nahrung verarbeitet, sich gegen Krankheiten wehrt und wie du gesund bleibst.</p>
+
+  <div class="uebersicht-karte uk-ernaehrung">
+    <div class="uk-nummer">Unterkapitel 3.2</div>
+    <h3>🥦 Nährstoffe & Ernährung</h3>
+    <ul>
+      <li>Kohlenhydrate, Fette und Proteine sind die drei Hauptnährstoffe</li>
+      <li>Die Ernährungspyramide zeigt, wie viel von jedem Lebensmittel du essen sollst</li>
+      <li>Energie wird in kJ oder kcal gemessen</li>
+      <li>Grundumsatz + Leistungsumsatz = Gesamtumsatz</li>
+    </ul>
+  </div>
+
+  <div class="uebersicht-karte uk-verdauung">
+    <div class="uk-nummer">Unterkapitel 3.3</div>
+    <h3>🦷 Verdauung</h3>
+    <ul>
+      <li>Die Verdauung beginnt schon im Mund mit Speichel und einem Enzym</li>
+      <li>Nahrungsweg: Mund → Speiseröhre → Magen → Dünndarm → Dickdarm → After</li>
+      <li>Darmzotten und Darmfalten vergrössern die Oberfläche des Dünndarms</li>
+      <li>Enzyme helfen, Nährstoffe in kleinere Bausteine aufzuspalten</li>
+    </ul>
+  </div>
+
+  <div class="uebersicht-karte uk-krankheit">
+    <div class="uk-nummer">Unterkapitel 3.4</div>
+    <h3>🦠 Krankheitserreger</h3>
+    <ul>
+      <li>Es gibt Bakterien, Viren und Pilze als Krankheitserreger</li>
+      <li>Viren können sich nur in einer Wirtszelle vermehren</li>
+      <li>Bakterien können mit Antibiotika behandelt werden – Viren nicht</li>
+      <li>Ansteckung über Tröpfchen, Körperflüssigkeiten oder Kontakt</li>
+    </ul>
+  </div>
+
+  <div class="uebersicht-karte uk-immun">
+    <div class="uk-nummer">Unterkapitel 3.5 – 3.7</div>
+    <h3>🛡️ Immunsystem & Impfungen</h3>
+    <ul>
+      <li>Fresszellen, T-Helferzellen, B-Zellen, T-Killerzellen und B-Gedächtniszellen schützen uns</li>
+      <li>Antigene = Erkennungsmerkmale auf Erregern</li>
+      <li>Antikörper passen wie Schlüssel zu Schloss auf Antigene</li>
+      <li>Aktive Immunisierung = Schutzimpfung; Passive Immunisierung = Heilimpfung</li>
+    </ul>
+  </div>
+
+  <div class="uebersicht-karte uk-gesundheit">
+    <div class="uk-nummer">Unterkapitel 3.8 – 3.10</div>
+    <h3>❤️ Krebs, Medikamente & Gesundheit</h3>
+    <ul>
+      <li>Krebs entsteht, wenn Zellen sich unkontrolliert teilen</li>
+      <li>Medikamente müssen nach Beipackzettel eingenommen werden</li>
+      <li>Gesundheit = körperliches UND seelisches Wohlbefinden</li>
+      <li>Innere und äussere Schutzfaktoren beeinflussen unsere Gesundheit</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========== KONZEPTE ========== -->
+<div id="tab-konzepte" class="tab-inhalt">
+  <p class="section-title">Die wichtigsten Konzepte</p>
+  <p class="section-sub">Hier findest du alle wichtigen Ideen und Zusammenhänge auf einen Blick.</p>
+
+  <div class="karten-grid">
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-ernaehrung">Ernährung</span>
+      <h3>Kohlenhydrate</h3>
+      <p>Liefern Energie. Man unterscheidet Einfachzucker (Traubenzucker), Zweifachzucker (Haushaltszucker) und Mehrfachzucker (Stärke). Enthalten in Getreide, Kartoffeln, Süssigkeiten.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-ernaehrung">Ernährung</span>
+      <h3>Fette</h3>
+      <p>Die energiereichsten Nährstoffe – liefern mehr als doppelt so viel Energie wie Kohlenhydrate. Wichtig für die Aufnahme bestimmter Vitamine. Enthalten in Öl, Butter, Nüssen, Fisch.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-ernaehrung">Ernährung</span>
+      <h3>Proteine</h3>
+      <p>Baustoff des Körpers. Wichtig für Muskeln, Haut, Haare, Hormone und Antikörper. Bestehen aus Aminosäuren. Enthalten in Fleisch, Fisch, Milch, Eiern, Hülsenfrüchten.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-verdauung">Verdauung</span>
+      <h3>Enzyme</h3>
+      <p>Spezielle Proteine, die chemische Reaktionen beschleunigen. Sie helfen, Nährstoffe in kleine Bausteine aufzuspalten. Beispiel: Speichel enthält ein Enzym, das Stärke zerlegt.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-verdauung">Verdauung</span>
+      <h3>Oberflächenvergrösserung</h3>
+      <p>Darmfalten und Darmzotten vergrössern die Innenfläche des Dünndarms enorm. Ohne sie müsste unser Darm ca. 400 m lang sein, damit genug Nährstoffe aufgenommen werden können.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-krankheit">Krankheitserreger</span>
+      <h3>Viren vs. Bakterien</h3>
+      <p>Viren: keine Zellen, brauchen eine Wirtszelle. Bakterien: einzellige Lebewesen, können sich selbst teilen. Bakterien können mit Antibiotika behandelt werden – Viren nicht.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-immun">Immunsystem</span>
+      <h3>Unspezifische Abwehr</h3>
+      <p>Die erste Reaktion des Körpers: Fresszellen fressen Krankheitserreger auf und präsentieren deren Antigene. Nicht spezialisiert auf einen bestimmten Erreger.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-immun">Immunsystem</span>
+      <h3>Spezifische Abwehr</h3>
+      <p>Gezielte Reaktion: B-Zellen bilden passende Antikörper. Antikörper und Antigene passen wie Schlüssel und Schloss. B-Gedächtniszellen speichern den Erreger für spätere Angriffe.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-immun">Immunsystem</span>
+      <h3>Aktive vs. Passive Immunisierung</h3>
+      <p>Aktiv (Schutzimpfung): Der Körper bildet selbst Antikörper und Gedächtniszellen → langfristiger Schutz. Passiv (Heilimpfung): Fertige Antikörper werden gespritzt → nur kurzfristiger Schutz.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-gesundheit">Krebs</span>
+      <h3>Tumore</h3>
+      <p>Gutartig: Zellen bleiben am Entstehungsort. Bösartig (Krebs): Zellen wandern über die Blutbahn in andere Körperstellen (Metastasen). Das Immunsystem versucht, Krebszellen zu erkennen.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-gesundheit">Gesundheit</span>
+      <h3>Schutz- & Risikofaktoren</h3>
+      <p>Innere Schutzfaktoren: gesunde Ernährung, Schlaf, Bewegung. Äussere Schutzfaktoren: soziale Unterstützung, Umwelt. Risikofaktoren können innere oder äussere Gesundheitsbedrohungen sein.</p>
+    </div>
+    <div class="konzept-karte">
+      <span class="thema-badge farbe-krankheit">STI</span>
+      <h3>Sexuell übertragbare Infektionen</h3>
+      <p>Durch Körperflüssigkeiten oder Schleimhautkontakt übertragen. Bester Schutz: Kondom. Bakterielle STI (z.B. Chlamydien) → Antibiotika. Virale STI (z.B. HIV, Herpes) → nicht heilbar, aber behandelbar.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LERNKÄRTCHEN ========== -->
+<div id="tab-karteien" class="tab-inhalt">
+  <p class="section-title">Lernkärtchen</p>
+  <p class="section-sub">Klick auf die Karte, um die Antwort zu sehen.</p>
+
+  <div class="karteien-steuerung">
+    <select id="karteien-thema">
+      <option value="alle">Alle Themen</option>
+      <option value="ernaehrung">Ernährung</option>
+      <option value="verdauung">Verdauung</option>
+      <option value="krankheit">Krankheitserreger</option>
+      <option value="immun">Immunsystem</option>
+      <option value="gesundheit">Gesundheit & mehr</option>
+    </select>
+    <button class="btn-primary" onclick="karteienNeuMischen()">🔀 Neu mischen</button>
+  </div>
+
+  <div class="karteien-fortschritt" id="karteien-fortschritt">Karte 1 von 20</div>
+
+  <div class="karte-wrapper" id="karteWrapper" onclick="karteUmdrehen()">
+    <div class="karte-inner" id="karteInner">
+      <div class="karte-vorderseite">
+        <div class="karte-hinweis">👆 Tippe zum Umdrehen</div>
+        <div class="karte-frage" id="karteFrage">Lade...</div>
+      </div>
+      <div class="karte-rueckseite">
+        <div class="karte-antwort-label">✅ Antwort</div>
+        <div class="karte-antwort" id="karteAntwort">Lade...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="karte-buttons" id="karteButtons" style="display:none;">
+    <button class="btn-nicht-gewusst" onclick="karteBewertet(false)">❌ Noch lernen</button>
+    <button class="btn-gewusst" onclick="karteBewertet(true)">✅ Gewusst!</button>
+  </div>
+  <div class="karte-buttons" id="karteNavButtons">
+    <button class="btn-zurueck" onclick="karteNachZurueck()">← Zurück</button>
+    <button class="btn-naechste" onclick="karteUmdrehen(); setTimeout(()=>document.getElementById('karteButtons').style.display='flex',100)">Umdrehen & Bewerten</button>
+    <button class="btn-naechste" style="background:var(--blau);border-color:var(--blau);" onclick="karteWeiter()">Weiter →</button>
+  </div>
+
+  <div class="ergebnis-box" id="karteienErgebnis">
+    <div class="ergebnis-emoji" id="karteienEmoji">🎉</div>
+    <h3 id="karteienErgebnisTitle">Super gemacht!</h3>
+    <p id="karteienErgebnisText">Alle Karten durchgearbeitet.</p>
+    <button class="neu-starten-btn" onclick="karteienNeuMischen()">🔀 Nochmal</button>
+  </div>
+</div>
+
+<!-- ========== FACHBEGRIFFE ========== -->
+<div id="tab-fachbegriffe" class="tab-inhalt">
+  <p class="section-title">Fachbegriffe von A–Z</p>
+  <p class="section-sub">Alle wichtigen Begriffe aus Kapitel 3 – einfach erklärt.</p>
+
+  <div id="fachbegriff-liste"></div>
+</div>
+
+<!-- ========== QUIZ ========== -->
+<div id="tab-quiz" class="tab-inhalt">
+  <p class="section-title">Quiz – Teste dein Wissen!</p>
+  <p class="section-sub">Wähle ein Thema und einen Schwierigkeitsgrad.</p>
+
+  <div class="quiz-steuerung" id="quizSteuerung">
+    <select id="quiz-thema">
+      <option value="alle">Alle Themen</option>
+      <option value="ernaehrung">Ernährung</option>
+      <option value="verdauung">Verdauung</option>
+      <option value="krankheit">Krankheitserreger</option>
+      <option value="immun">Immunsystem & Impfungen</option>
+      <option value="gesundheit">Gesundheit & Krebs</option>
+    </select>
+    <select id="quiz-schwierigkeit">
+      <option value="alle">Alle Niveaus</option>
+      <option value="leicht">Leicht</option>
+      <option value="mittel">Mittel</option>
+      <option value="schwer">Schwer</option>
+    </select>
+    <button class="btn-start" onclick="quizStarten()">Quiz starten ▶</button>
+  </div>
+
+  <div id="quizBereich" style="display:none;">
+    <div class="quiz-fortschritt-bar">
+      <div class="quiz-fortschritt-fill" id="quizFortschrittFill" style="width:0%"></div>
+    </div>
+
+    <div class="quiz-frage-box" id="quizFrageBox">
+      <div class="quiz-meta">
+        <span id="quizFrageNummer">Frage 1 / 10</span>
+        <span class="quiz-schwierig-badge" id="quizSchwierigBadge">Leicht</span>
+      </div>
+      <div class="quiz-frage" id="quizFrageText">Lade...</div>
+      <div class="quiz-optionen" id="quizOptionen"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-weiter-btn" id="quizWeiterBtn" onclick="quizNaechste()">Weiter →</button>
+    </div>
+
+    <div class="quiz-ergebnis" id="quizErgebnis">
+      <div class="punkte-ring" id="quizPunkteRing"><span id="quizPunkteProzent">--</span></div>
+      <h3 id="quizErgebnisTitle">Ergebnis</h3>
+      <p id="quizErgebnisText">Du hast ... von ... Fragen richtig beantwortet.</p>
+      <button class="neu-starten-btn" onclick="quizNeuStarten()">🔄 Nochmal</button>
+      <button class="neu-starten-btn" style="background:var(--blau);" onclick="quizStarten()">📋 Anderes Quiz</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// DATEN
+// ============================================================
+
+var KARTEIEN = [
+  // ERNÄHRUNG
+  { thema: 'ernaehrung', frage: 'Was sind die drei Hauptnährstoffe?', antwort: 'Kohlenhydrate, Fette und Proteine.' },
+  { thema: 'ernaehrung', frage: 'Wozu dienen Kohlenhydrate im Körper?', antwort: 'Sie liefern Energie. Der Körper wandelt überschüssige Kohlenhydrate in Depotfett um.' },
+  { thema: 'ernaehrung', frage: 'Was ist der Unterschied zwischen Einfach-, Zweifach- und Mehrfachzucker?', antwort: 'Einfachzucker (z.B. Traubenzucker) = 1 Baustein. Zweifachzucker (z.B. Haushaltszucker) = 2 Bausteine. Mehrfachzucker (z.B. Stärke) = viele Bausteine verbunden.' },
+  { thema: 'ernaehrung', frage: 'Warum sind Fette so energiereich?', antwort: 'Aus 1 g Fett kann der Körper mehr als doppelt so viel Energie gewinnen wie aus 1 g Kohlenhydraten.' },
+  { thema: 'ernaehrung', frage: 'Was ist der Grundumsatz?', antwort: 'Die Energie, die der Körper auch in völliger Ruhe (z.B. beim Schlafen) benötigt – z.B. für Herzschlag und Atmung.' },
+  { thema: 'ernaehrung', frage: 'Aus was bestehen Proteine?', antwort: 'Aus Ketten von Aminosäuren. Es gibt 20 verschiedene Aminosäuren.' },
+  // VERDAUUNG
+  { thema: 'verdauung', frage: 'Wo beginnt die Verdauung?', antwort: 'Im Mund: Beim Kauen wird Nahrung zerkleinert. Speichel enthält ein Enzym, das Stärke in kleinere Zuckerbausteine zerlegt.' },
+  { thema: 'verdauung', frage: 'Nenne die Verdauungsorgane in der richtigen Reihenfolge.', antwort: 'Mund → Speiseröhre → Magen → Dünndarm (Zwölffingerdarm) → Dickdarm → Mastdarm → After' },
+  { thema: 'verdauung', frage: 'Welche Funktion hat die Salzsäure im Magen?', antwort: 'Sie vernichtet schädliche Bakterien und hilft Proteine auszuflocken, damit das Enzym optimal wirken kann.' },
+  { thema: 'verdauung', frage: 'Warum hat der Dünndarm Darmfalten und Darmzotten?', antwort: 'Sie vergrössern die Oberfläche des Dünndarms enorm, damit mehr Nährstoffe ins Blut aufgenommen werden können.' },
+  { thema: 'verdauung', frage: 'Was ist die Hauptaufgabe des Dickdarms?', antwort: 'Die Rückgewinnung von Wasser aus den unverdaulichen Nahrungsresten.' },
+  { thema: 'verdauung', frage: 'Was macht die Galle?', antwort: 'Die Galle neutralisiert den sauren Speisebrei aus dem Magen und hilft bei der Verdauung von Fetten.' },
+  // KRANKHEITSERREGER
+  { thema: 'krankheit', frage: 'Was ist der Unterschied zwischen Viren und Bakterien?', antwort: 'Bakterien sind Einzeller und können sich selbst teilen. Viren sind keine Zellen und brauchen eine Wirtszelle zur Vermehrung.' },
+  { thema: 'krankheit', frage: 'Warum wirken Antibiotika nicht gegen Viren?', antwort: 'Antibiotika greifen Strukturen an, die nur Bakterien haben. Viren haben keinen eigenen Stoffwechsel.' },
+  { thema: 'krankheit', frage: 'Was ist eine Tröpfcheninfektion?', antwort: 'Ansteckung durch Krankheitserreger in der Ausatemluft (Tröpfchen). Beispiel: Grippe.' },
+  { thema: 'krankheit', frage: 'Was ist ein Wirt bei Viren?', antwort: 'Ein Lebewesen, dessen Zellen ein Virus zur Vermehrung benutzt. Die Wirtszelle produziert neue Viren und platzt schliesslich.' },
+  // IMMUNSYSTEM
+  { thema: 'immun', frage: 'Was sind Antigene?', antwort: 'Spezielle Strukturen auf der Oberfläche von Erregern (oder auch körpereigenen Zellen), die das Immunsystem erkennen kann.' },
+  { thema: 'immun', frage: 'Wie funktioniert das Schlüssel-Schloss-Prinzip bei Antikörpern?', antwort: 'Jeder Antikörper passt genau zu einem bestimmten Antigen – wie ein Schlüssel zu einem Schloss. So werden Erreger markiert.' },
+  { thema: 'immun', frage: 'Was machen B-Gedächtniszellen?', antwort: 'Sie speichern Informationen über einen Erreger. Bei erneutem Kontakt können schnell passende Antikörper produziert werden.' },
+  { thema: 'immun', frage: 'Was ist der Unterschied zwischen aktiver und passiver Immunisierung?', antwort: 'Aktiv: Körper bildet selbst Antikörper → langer Schutz. Passiv: Fertige Antikörper werden injiziert → kurzfristiger Schutz.' },
+  { thema: 'immun', frage: 'Warum muss man gegen Grippe jedes Jahr neu geimpft werden?', antwort: 'Das Grippevirus verändert seine Antigene jedes Jahr stark. Die alten B-Gedächtniszellen passen dann nicht mehr.' },
+  // GESUNDHEIT
+  { thema: 'gesundheit', frage: 'Was ist der Unterschied zwischen einem gutartigen und einem bösartigen Tumor?', antwort: 'Gutartig: Zellen bleiben am Entstehungsort. Bösartig (Krebs): Zellen wandern über die Blutbahn und bilden Metastasen.' },
+  { thema: 'gesundheit', frage: 'Warum ist Gesundheit mehr als nur körperliches Wohlbefinden?', antwort: 'Gesundheit umfasst auch seelisches Wohlbefinden. Stress, Angst und Ausgrenzung beeinflussen unsere Gesundheit genauso.' },
+  { thema: 'gesundheit', frage: 'Nenne drei innere Schutzfaktoren für die Gesundheit.', antwort: 'Gesunde Ernährung, ausreichend Schlaf, Bewegung, Verzicht auf Suchtmittel, gesunder Wechsel zwischen Stress und Entspannung.' },
+];
+
+var QUIZ_FRAGEN = [
+  // LEICHT ERNÄHRUNG
+  { thema: 'ernaehrung', niveau: 'leicht', frage: 'Welcher Nährstoff liefert dem Körper hauptsächlich Energie?', optionen: ['Vitamine', 'Kohlenhydrate', 'Wasser', 'Ballaststoffe'], richtig: 1, erklaerung: 'Kohlenhydrate sind die wichtigste Energiequelle des Körpers. Aber auch Fette liefern viel Energie.' },
+  { thema: 'ernaehrung', niveau: 'leicht', frage: 'Wo findet man viele Proteine?', optionen: ['In Wasser', 'In Fleisch, Fisch und Hülsenfrüchten', 'In Zucker', 'In Öl'], richtig: 1, erklaerung: 'Proteine kommen vor allem in Fleisch, Fisch, Milch, Eiern und Hülsenfrüchten wie Bohnen vor.' },
+  { thema: 'ernaehrung', niveau: 'leicht', frage: 'Was ist Haushaltszucker?', optionen: ['Einfachzucker', 'Zweifachzucker', 'Mehrfachzucker', 'Kein Kohlenhydrat'], richtig: 1, erklaerung: 'Haushaltszucker ist ein Zweifachzucker: Er besteht aus einem Traubenzucker- und einem Fruchtzucker-Molekül.' },
+  { thema: 'ernaehrung', niveau: 'mittel', frage: 'Warum ist Stärke ein Mehrfachzucker?', optionen: ['Weil sie süss schmeckt', 'Weil viele Traubenzucker-Moleküle zu einer langen Kette verbunden sind', 'Weil sie aus Fett besteht', 'Weil sie im Darm nicht verdaut wird'], richtig: 1, erklaerung: 'Bei der Stärke sind viele Traubenzucker-Moleküle zu einer langen Kette verbunden.' },
+  { thema: 'ernaehrung', niveau: 'mittel', frage: 'Was passiert, wenn du zu viel Energie mit der Nahrung aufnimmst?', optionen: ['Du wirst krank', 'Der Körper wandelt die überschüssige Energie in Depotfett um', 'Die Energie wird einfach ausgeschieden', 'Nichts besonderes'], richtig: 1, erklaerung: 'Wenn du zu viele Kohlenhydrate oder Fette isst, wandelt dein Körper die überschüssige Energie in Depotfett um.' },
+  { thema: 'ernaehrung', niveau: 'schwer', frage: 'Warum können manche Vitamine nur zusammen mit Fetten aufgenommen werden?', optionen: ['Weil Vitamine aus Fett bestehen', 'Weil fettlösliche Vitamine nur im Fett transportiert werden können', 'Weil Fett den Magen schützt', 'Das stimmt nicht, alle Vitamine lösen sich in Wasser'], richtig: 1, erklaerung: 'Es gibt fettlösliche Vitamine (wie A, D, E, K), die nur zusammen mit Fetten aus dem Darm ins Blut aufgenommen werden können.' },
+  // LEICHT VERDAUUNG
+  { thema: 'verdauung', niveau: 'leicht', frage: 'Wo beginnt die Verdauung?', optionen: ['Im Magen', 'Im Dünndarm', 'Im Mund', 'In der Leber'], richtig: 2, erklaerung: 'Die Verdauung beginnt bereits im Mund: Beim Kauen wird die Nahrung zerkleinert, und der Speichel enthält ein Enzym, das Stärke zerlegt.' },
+  { thema: 'verdauung', niveau: 'leicht', frage: 'Wohin gelangt der Nahrungsbrei nach dem Magen?', optionen: ['In den Dickdarm', 'In den Dünndarm', 'In die Leber', 'In den After'], richtig: 1, erklaerung: 'Vom Magen gelangt der Nahrungsbrei in den Dünndarm, wo die meisten Nährstoffe ins Blut aufgenommen werden.' },
+  { thema: 'verdauung', niveau: 'mittel', frage: 'Warum braucht der Dünndarm Darmfalten und Darmzotten?', optionen: ['Damit er robuster ist', 'Damit die Oberfläche vergrössert wird und mehr Nährstoffe aufgenommen werden können', 'Damit die Nahrung schneller transportiert wird', 'Damit Bakterien abgetötet werden'], richtig: 1, erklaerung: 'Durch Darmfalten und Darmzotten wird die Oberfläche des Dünndarms stark vergrössert. Ohne sie müsste der Darm ca. 400 m lang sein.' },
+  { thema: 'verdauung', niveau: 'mittel', frage: 'Was ist die wichtigste Aufgabe des Dickdarms?', optionen: ['Nährstoffe aufnehmen', 'Wasser zurückgewinnen', 'Enzyme produzieren', 'Nahrung zerkleinern'], richtig: 1, erklaerung: 'Der Dickdarm gewinnt Wasser aus den unverdaulichen Resten zurück. Ohne das würde man Durchfall bekommen.' },
+  { thema: 'verdauung', niveau: 'schwer', frage: 'Welche der folgenden Aussagen zur Salzsäure im Magen ist richtig?', optionen: ['Sie verdaut Kohlenhydrate', 'Sie tötet schädliche Bakterien ab und hilft Proteine auszuflocken', 'Sie neutralisiert die Galle', 'Sie löst Fette auf'], richtig: 1, erklaerung: 'Die Salzsäure im Magen tötet schädliche Bakterien und hilft, Proteine auszuflocken, damit das Enzym im Magensaft optimal wirken kann.' },
+  // LEICHT KRANKHEIT
+  { thema: 'krankheit', niveau: 'leicht', frage: 'Was können Bakterien, was Viren nicht können?', optionen: ['Menschen anstecken', 'Sich selbst durch Teilung vermehren', 'Krank machen', 'Ins Blut gelangen'], richtig: 1, erklaerung: 'Bakterien sind Einzeller und können sich durch Teilung selbst vermehren. Viren brauchen dazu eine Wirtszelle.' },
+  { thema: 'krankheit', niveau: 'leicht', frage: 'Gegen was wirken Antibiotika?', optionen: ['Gegen alle Krankheitserreger', 'Nur gegen Viren', 'Nur gegen bestimmte Bakterien', 'Gegen Pilze'], richtig: 2, erklaerung: 'Antibiotika sind nur gegen bestimmte Bakterien wirksam. Gegen Viren helfen sie nicht.' },
+  { thema: 'krankheit', niveau: 'mittel', frage: 'Was ist eine Wirtszelle?', optionen: ['Eine Zelle, die Energie liefert', 'Eine Zelle, die ein Virus befällt und zur Vermehrung nutzt', 'Eine besonders grosse Körperzelle', 'Eine Zelle im Immunsystem'], richtig: 1, erklaerung: 'Der Wirt ist ein Lebewesen, dessen Zellen ein Virus für die Vermehrung nutzt. Die Wirtszelle produziert neue Viren und platzt dann.' },
+  { thema: 'krankheit', niveau: 'schwer', frage: 'Warum werden Antibiotika unwirksam, wenn man sie zu früh absetzt?', optionen: ['Weil der Körper müde wird', 'Weil noch nicht alle Bakterien abgetötet sind und resistente Bakterien überleben', 'Weil die Bakterien stärker werden, wenn sie Antibiotika sehen', 'Das ist egal'], richtig: 1, erklaerung: 'Wenn du Antibiotika zu früh absetzt, überleben die widerstandsfähigsten Bakterien. Diese können sich dann vermehren und sind schwerer zu behandeln.' },
+  // IMMUN
+  { thema: 'immun', niveau: 'leicht', frage: 'Was sind Antigene?', optionen: ['Medikamente gegen Viren', 'Spezielle Strukturen auf der Oberfläche von Erregern', 'Weisse Blutzellen', 'Ein Teil des Magens'], richtig: 1, erklaerung: 'Antigene sind spezielle Erkennungsmerkmale auf der Oberfläche von Erregern. Das Immunsystem erkennt sie als fremd.' },
+  { thema: 'immun', niveau: 'leicht', frage: 'Was machen Fresszellen?', optionen: ['Sie produzieren Antikörper', 'Sie fressen Krankheitserreger auf', 'Sie transportieren Sauerstoff', 'Sie bilden Hormone'], richtig: 1, erklaerung: 'Fresszellen (auch Makrophagen genannt) sind weisse Blutzellen, die Krankheitserreger direkt auffressen und verdauen.' },
+  { thema: 'immun', niveau: 'mittel', frage: 'Was ist der Vorteil der aktiven gegenüber der passiven Immunisierung?', optionen: ['Die aktive Immunisierung wirkt sofort', 'Bei der aktiven Immunisierung bildet der Körper B-Gedächtniszellen → langer Schutz', 'Die aktive Immunisierung hat keine Nebenwirkungen', 'Bei der passiven Immunisierung bildet der Körper mehr Antikörper'], richtig: 1, erklaerung: 'Bei der aktiven Immunisierung (Schutzimpfung) bildet der Körper selbst Antikörper und B-Gedächtniszellen, die lange erhalten bleiben.' },
+  { thema: 'immun', niveau: 'mittel', frage: 'Welche Blutgruppe ist der "Universalspender"?', optionen: ['A', 'B', 'AB', '0'], richtig: 3, erklaerung: 'Blutgruppe 0 hat keine Antigene A oder B auf den roten Blutzellen. Daher kann dieses Blut an alle anderen Blutgruppen gespendet werden.' },
+  { thema: 'immun', niveau: 'schwer', frage: 'Warum schwächt HIV das Immunsystem?', optionen: ['Weil HIV die Fresszellen abtötet', 'Weil HIV die T-Helferzellen befällt, die normalerweise B-Zellen und T-Killerzellen aktivieren', 'Weil HIV Antikörper zerstört', 'Weil HIV in den Knochen eindringt'], richtig: 1, erklaerung: 'HIV befällt T-Helferzellen als Wirtszellen. Ohne funktionsfähige T-Helferzellen können B-Zellen und T-Killerzellen nicht aktiviert werden → das Immunsystem versagt.' },
+  // GESUNDHEIT
+  { thema: 'gesundheit', niveau: 'leicht', frage: 'Was ist Mobbing?', optionen: ['Ein Computerspiel', 'Wenn eine Person wiederholt schikaniert wird', 'Eine Krankheit', 'Ein Sport'], richtig: 1, erklaerung: 'Mobbing bedeutet, dass eine Person über längere Zeit immer wieder von anderen schikaniert wird – z.B. beschimpft, ausgegrenzt oder gedemütigt.' },
+  { thema: 'gesundheit', niveau: 'mittel', frage: 'Was ist der Unterschied zwischen einem gutartigen und einem bösartigen Tumor?', optionen: ['Gutartige Tumore sind immer gefährlich', 'Bösartige Tumore bilden Metastasen, gutartige bleiben am Entstehungsort', 'Gutartige Tumore wachsen schneller', 'Es gibt keinen Unterschied'], richtig: 1, erklaerung: 'Bösartige Tumore (Krebs) breiten sich über die Blutbahn im Körper aus und bilden Tochtergeschwülste (Metastasen). Gutartige Tumore bleiben lokal.' },
+  { thema: 'gesundheit', niveau: 'schwer', frage: 'Warum kann Tabakrauchen Lungenkrebs verursachen?', optionen: ['Weil Rauch kalt ist', 'Weil Schadstoffe im Tabakrauch die Zellteilung in der Lunge unkontrolliert anregen können', 'Weil Rauchen den Grundumsatz senkt', 'Das ist wissenschaftlich nicht belegt'], richtig: 1, erklaerung: 'Im Tabakrauch gibt es krebserregende Stoffe, die die DNA von Lungenzellen schädigen können. Dadurch kann die Zellteilung ausser Kontrolle geraten → Lungenkrebs.' },
+];
+
+var FACHBEGRIFFE = [
+  { term: 'Aminosäuren', erklaerung: 'Die Bausteine der Proteine. Es gibt 20 verschiedene Aminosäuren. Der Körper kann die meisten selbst bilden; "essenzielle" müssen mit der Nahrung aufgenommen werden.' },
+  { term: 'Antibiotika', erklaerung: 'Medikamente, die bestimmte Bakterien hemmen oder abtöten. Sie wirken NICHT gegen Viren.' },
+  { term: 'Antigen', erklaerung: 'Spezielle Struktur auf der Oberfläche von Erregern oder Zellen, die das Immunsystem erkennen kann.' },
+  { term: 'Antikörper', erklaerung: 'Proteine, die von B-Zellen gebildet werden. Sie passen wie ein Schlüssel zu einem bestimmten Antigen und markieren Erreger.' },
+  { term: 'Bauchspeicheldrüse', erklaerung: 'Produziert den Bauchspeichel, der Enzyme für die Verdauung von Fetten, Proteinen und Kohlenhydraten enthält.' },
+  { term: 'B-Gedächtniszellen', erklaerung: 'Speichern Informationen über Antigene nach einer Infektion. Bei einem erneuten Angriff kann der Körper schnell reagieren.' },
+  { term: 'B-Zellen', erklaerung: 'Weisse Blutzellen, die Antikörper produzieren oder zu B-Gedächtniszellen werden.' },
+  { term: 'Darmfalten / Darmzotten', erklaerung: 'Falten und kleine Zotten auf der Innenwand des Dünndarms, die die Oberfläche stark vergrössern, damit mehr Nährstoffe aufgenommen werden können.' },
+  { term: 'Enzyme', erklaerung: 'Spezielle Proteine, die chemische Reaktionen im Körper beschleunigen. Wichtig für die Verdauung, weil sie Nährstoffe in kleinere Bausteine aufteilen.' },
+  { term: 'Fette', erklaerung: 'Die energiereichsten Nährstoffe. Liefern mehr als doppelt so viel Energie wie Kohlenhydrate. Bestehen aus Fettsäuren. Wichtig auch für die Aufnahme bestimmter Vitamine.' },
+  { term: 'Fresszellen', erklaerung: 'Weisse Blutzellen, die Krankheitserreger auffressen und deren Antigene auf ihrer Oberfläche präsentieren.' },
+  { term: 'Galle', erklaerung: 'Wird in der Leber gebildet und in der Gallenblase gesammelt. Neutralisiert den sauren Speisebrei und hilft, Fette zu verdauen.' },
+  { term: 'Immunsystem', erklaerung: 'Das Abwehrsystem des Körpers gegen Krankheitserreger. Es unterscheidet zwischen "fremd" und "körpereigen".' },
+  { term: 'Infektion', erklaerung: 'Ansteckung mit einem Krankheitserreger (Virus, Bakterium, Pilz).' },
+  { term: 'Kohlenhydrate', erklaerung: 'Hauptenergiequelle des Körpers. Unterteilt in Einfach- (Traubenzucker), Zweifach- (Haushaltszucker) und Mehrfachzucker (Stärke).' },
+  { term: 'Krebs / Tumor', erklaerung: 'Gutartiger Tumor: Zellen bleiben lokal. Bösartiger Tumor (Krebs): Zellen wandern über die Blutbahn und bilden Metastasen.' },
+  { term: 'Metastasen', erklaerung: 'Tochtergeschwülste bei Krebs. Entstehen, wenn Krebszellen über die Blutbahn in andere Körperbereiche wandern.' },
+  { term: 'Passive Immunisierung', erklaerung: 'Heilimpfung: Fertige Antikörper werden gespritzt. Kein langer Schutz, weil keine B-Gedächtniszellen gebildet werden.' },
+  { term: 'Aktive Immunisierung', erklaerung: 'Schutzimpfung: Abgeschwächte Erreger werden geimpft. Der Körper bildet selbst Antikörper und B-Gedächtniszellen → langer Schutz.' },
+  { term: 'Proteine', erklaerung: 'Baustoff des Körpers. Wichtig für Muskeln, Haut, Haare, Hormone, Enzyme und Antikörper. Bestehen aus Aminosäuren.' },
+  { term: 'Speicheldrüsen', erklaerung: 'Produzieren Speichel, der beim Kauen mit dem Nahrungsbrei gemischt wird. Enthält ein Enzym, das Stärke zerlegt.' },
+  { term: 'STI', erklaerung: 'Sexuell übertragbare Infektionen. Werden durch Körperflüssigkeiten oder Schleimhautkontakt übertragen. Bester Schutz: Kondom.' },
+  { term: 'T-Helferzellen', erklaerung: 'Weisse Blutzellen, die die spezifische Immunantwort steuern. Sie aktivieren B-Zellen und T-Killerzellen.' },
+  { term: 'T-Killerzellen', erklaerung: 'Zerstören vom Virus befallene Körperzellen, bevor neue Viren freigesetzt werden.' },
+  { term: 'Tröpfcheninfektion', erklaerung: 'Ansteckung durch Erreger in kleinen Flüssigkeitstropfen, die beim Atmen, Niesen oder Sprechen ausgestossen werden. Beispiel: Grippe.' },
+  { term: 'Virus', erklaerung: 'Kein Lebewesen! Besteht nur aus Erbmaterial und einer Proteinhülle. Kann sich nur in einer Wirtszelle vermehren.' },
+  { term: 'Wirt / Wirtszelle', erklaerung: 'Lebewesen (oder Zelle), das ein Virus für die Vermehrung nutzt. Nach der Vermehrung platzt die Wirtszelle.' },
+];
+
+// ============================================================
+// TAB-NAVIGATION
+// ============================================================
+function zeigeTab(id, btn) {
+  var inhalte = document.querySelectorAll('.tab-inhalt');
+  var buttons = document.querySelectorAll('nav button');
+  inhalte.forEach(function(el) { el.classList.remove('aktiv'); });
+  buttons.forEach(function(b) { b.classList.remove('aktiv'); });
+  document.getElementById('tab-' + id).classList.add('aktiv');
+  btn.classList.add('aktiv');
+}
+
+// ============================================================
+// FACHBEGRIFFE
+// ============================================================
+(function() {
+  var sorted = FACHBEGRIFFE.slice().sort(function(a,b){ return a.term.localeCompare(b.term); });
+  var container = document.getElementById('fachbegriff-liste');
+  sorted.forEach(function(f) {
+    var div = document.createElement('div');
+    div.className = 'fachbegriff-item';
+    div.innerHTML = '<div class="fb-term">' + f.term + '</div><div class="fb-erklaerung">' + f.erklaerung + '</div>';
+    container.appendChild(div);
+  });
+})();
+
+// ============================================================
+// LERNKÄRTCHEN
+// ============================================================
+var karteienDaten = [];
+var karteienIndex = 0;
+var karteienGewusst = 0;
+var karteienNichtGewusst = 0;
+var karteGedreht = false;
+
+function karteienLaden() {
+  var thema = document.getElementById('karteien-thema').value;
+  karteienDaten = KARTEIEN.filter(function(k) {
+    return thema === 'alle' || k.thema === thema;
+  });
+  // Mischen
+  for (var i = karteienDaten.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = karteienDaten[i]; karteienDaten[i] = karteienDaten[j]; karteienDaten[j] = tmp;
+  }
+  karteienIndex = 0;
+  karteienGewusst = 0;
+  karteienNichtGewusst = 0;
+  document.getElementById('karteienErgebnis').classList.remove('sichtbar');
+  document.getElementById('karteWrapper').style.display = 'block';
+  document.getElementById('karteNavButtons').style.display = 'flex';
+  document.getElementById('karteButtons').style.display = 'none';
+  karteZeigen();
+}
+
+function karteZeigen() {
+  if (karteienIndex >= karteienDaten.length) {
+    karteienErgebnisZeigen(); return;
+  }
+  var k = karteienDaten[karteienIndex];
+  document.getElementById('karteFrage').textContent = k.frage;
+  document.getElementById('karteAntwort').textContent = k.antwort;
+  // Reset flip
+  var wrapper = document.getElementById('karteWrapper');
+  wrapper.classList.remove('gedreht');
+  karteGedreht = false;
+  document.getElementById('karteButtons').style.display = 'none';
+
+  var fp = document.getElementById('karteien-fortschritt');
+  fp.textContent = 'Karte ' + (karteienIndex + 1) + ' von ' + karteienDaten.length;
+}
+
+function karteUmdrehen() {
+  var wrapper = document.getElementById('karteWrapper');
+  if (!karteGedreht) {
+    wrapper.classList.add('gedreht');
+    karteGedreht = true;
+    document.getElementById('karteButtons').style.display = 'flex';
+  } else {
+    wrapper.classList.remove('gedreht');
+    karteGedreht = false;
+    document.getElementById('karteButtons').style.display = 'none';
+  }
+}
+
+function karteBewertet(gewusst) {
+  if (gewusst) karteienGewusst++; else karteienNichtGewusst++;
+  karteienIndex++;
+  karteZeigen();
+}
+
+function karteWeiter() {
+  karteienIndex++;
+  karteZeigen();
+}
+
+function karteNachZurueck() {
+  if (karteienIndex > 0) karteienIndex--;
+  karteZeigen();
+}
+
+function karteienNeuMischen() {
+  karteienLaden();
+}
+
+function karteienErgebnisZeigen() {
+  document.getElementById('karteWrapper').style.display = 'none';
+  document.getElementById('karteNavButtons').style.display = 'none';
+  document.getElementById('karteButtons').style.display = 'none';
+  var e = document.getElementById('karteienErgebnis');
+  e.classList.add('sichtbar');
+  var pct = karteienDaten.length > 0 ? Math.round(karteienGewusst / karteienDaten.length * 100) : 0;
+  var emoji = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📚';
+  document.getElementById('karteienEmoji').textContent = emoji;
+  var title = pct >= 80 ? 'Sehr gut!' : pct >= 50 ? 'Gut gemacht!' : 'Weiter üben!';
+  document.getElementById('karteienErgebnisTitle').textContent = title;
+  document.getElementById('karteienErgebnisText').textContent =
+    'Du hast ' + karteienGewusst + ' von ' + karteienDaten.length + ' Karten gewusst (' + pct + ' %).';
+}
+
+// Initialisierung Kärtchen
+document.getElementById('karteien-thema').addEventListener('change', karteienLaden);
+karteienLaden();
+
+// ============================================================
+// QUIZ
+// ============================================================
+var quizFragen = [];
+var quizIndex = 0;
+var quizPunkte = 0;
+var quizGeantwortet = false;
+
+function quizStarten() {
+  var thema = document.getElementById('quiz-thema').value;
+  var niveau = document.getElementById('quiz-schwierigkeit').value;
+  var gefiltert = QUIZ_FRAGEN.filter(function(f) {
+    var t = thema === 'alle' || f.thema === thema;
+    var n = niveau === 'alle' || f.niveau === niveau;
+    return t && n;
+  });
+  // Mischen & max. 10 nehmen
+  for (var i = gefiltert.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = gefiltert[i]; gefiltert[i] = gefiltert[j]; gefiltert[j] = tmp;
+  }
+  quizFragen = gefiltert.slice(0, Math.min(10, gefiltert.length));
+  if (quizFragen.length === 0) {
+    alert('Keine Fragen für diese Auswahl. Bitte andere Filter wählen.');
+    return;
+  }
+  quizIndex = 0;
+  quizPunkte = 0;
+  quizGeantwortet = false;
+  document.getElementById('quizBereich').style.display = 'block';
+  document.getElementById('quizSteuerung').style.display = 'none';
+  document.getElementById('quizErgebnis').classList.remove('sichtbar');
+  document.getElementById('quizFrageBox').style.display = 'block';
+  quizFrageZeigen();
+}
+
+function quizFrageZeigen() {
+  if (quizIndex >= quizFragen.length) { quizErgebnisZeigen(); return; }
+  var f = quizFragen[quizIndex];
+  quizGeantwortet = false;
+
+  document.getElementById('quizFrageNummer').textContent = 'Frage ' + (quizIndex + 1) + ' / ' + quizFragen.length;
+  document.getElementById('quizFortschrittFill').style.width = (quizIndex / quizFragen.length * 100) + '%';
+
+  var badge = document.getElementById('quizSchwierigBadge');
+  badge.textContent = f.niveau === 'leicht' ? 'Leicht' : f.niveau === 'mittel' ? 'Mittel' : 'Schwer';
+  badge.className = 'quiz-schwierig-badge level-' + f.niveau;
+
+  document.getElementById('quizFrageText').textContent = f.frage;
+
+  var opt = document.getElementById('quizOptionen');
+  opt.innerHTML = '';
+  f.optionen.forEach(function(o, i) {
+    var btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = o;
+    btn.onclick = function() { quizAntworten(i); };
+    opt.appendChild(btn);
+  });
+
+  document.getElementById('quizFeedback').className = 'quiz-feedback';
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizWeiterBtn').className = 'quiz-weiter-btn';
+}
+
+function quizAntworten(ausgewaehlt) {
+  if (quizGeantwortet) return;
+  quizGeantwortet = true;
+  var f = quizFragen[quizIndex];
+  var opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(function(btn) { btn.disabled = true; });
+  opts[f.richtig].classList.add('richtig');
+  var richtig = ausgewaehlt === f.richtig;
+  if (!richtig) opts[ausgewaehlt].classList.add('falsch');
+  else quizPunkte++;
+
+  var fb = document.getElementById('quizFeedback');
+  fb.className = 'quiz-feedback ' + (richtig ? 'richtig' : 'falsch');
+  fb.textContent = (richtig ? '✅ Richtig! ' : '❌ Leider falsch. ') + f.erklaerung;
+
+  document.getElementById('quizWeiterBtn').className = 'quiz-weiter-btn sichtbar';
+  document.getElementById('quizWeiterBtn').textContent = quizIndex + 1 < quizFragen.length ? 'Weiter →' : 'Ergebnis anzeigen';
+}
+
+function quizNaechste() {
+  quizIndex++;
+  quizFrageZeigen();
+}
+
+function quizErgebnisZeigen() {
+  document.getElementById('quizFrageBox').style.display = 'none';
+  document.getElementById('quizFortschrittFill').style.width = '100%';
+  var e = document.getElementById('quizErgebnis');
+  e.classList.add('sichtbar');
+  var pct = Math.round(quizPunkte / quizFragen.length * 100);
+  var ring = document.getElementById('quizPunkteRing');
+  ring.style.background = 'conic-gradient(#3a7d44 ' + pct + '%, #d0ddd0 ' + pct + '%)';
+  document.getElementById('quizPunkteProzent').textContent = pct + '%';
+  var title = pct >= 80 ? '🎉 Ausgezeichnet!' : pct >= 60 ? '👍 Gut gemacht!' : pct >= 40 ? '💪 Du schaffst das!' : '📚 Noch etwas üben!';
+  document.getElementById('quizErgebnisTitle').textContent = title;
+  document.getElementById('quizErgebnisText').textContent =
+    'Du hast ' + quizPunkte + ' von ' + quizFragen.length + ' Fragen richtig beantwortet.';
+}
+
+function quizNeuStarten() {
+  document.getElementById('quizBereich').style.display = 'none';
+  document.getElementById('quizSteuerung').style.display = 'flex';
+  document.getElementById('quizErgebnis').classList.remove('sichtbar');
+  document.getElementById('quizFrageBox').style.display = 'block';
+}
+</script>
+</body>
+</html>
